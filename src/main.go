@@ -10,13 +10,37 @@ import (
 
 	"google.golang.org/api/googleapi/transport"
 	vision "google.golang.org/api/vision/v1"
+	"os"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
 
-const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
+//const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
+
+type Config struct {
+	Database struct{
+		User       string  `json:"user"`
+		Password   string  `json:"password"`
+	} `json:"database"`
+
+	Key string `json:"key"`
+}
+
+func LoadConfiguration(file string) Config {
+	var config Config
+	configFile, err := os.Open(file)
+	defer configFile.Close()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&config)
+	return config
+}
 
 func ExampleGoogleCloudVisionAPI() {
+	conf := LoadConfiguration("../config/config.json")
 
 	data, err := ioutil.ReadFile("images/cat.jpg")
 
@@ -38,7 +62,7 @@ func ExampleGoogleCloudVisionAPI() {
 	}
 
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: developerKey},
+		Transport: &transport.APIKey{Key: conf.Key},
 	}
 	svc, err := vision.New(client)
 	if err != nil {
