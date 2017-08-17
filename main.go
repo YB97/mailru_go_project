@@ -1,39 +1,58 @@
 package main
 
 import (
-	"net/http"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
-	"os"
+	"io/ioutil"
 	"log"
-	"bytes"
-	"mime/multipart"
-	//"io/ioutil"
+	"net/http"
+
+	"google.golang.org/api/googleapi/transport"
+	vision "google.golang.org/api/vision/v1"
 )
 
-func main() {
-	var b bytes.Buffer
-	w := multipart.NewWriter(&b)
-	buf, file_err := os.Open(os.Args[1])
-	if file_err != nil{
-		log.Fatal("input error")
-	}
-	defer buf.Close()
-	fw, err := w.CreateFormFile("image", os.Args[1])
-	if fw, err = w.CreateFormField("key"); err != nil {
-		fmt.Println(fw)
-	}
-	req, err := http.NewRequest("POST", "https://vision.googleapis.com/v1/images:annotate?key=AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo", &b)
-	if err != nil {
-		return
+// https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
+
+const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
+
+func ExampleGoogleCloudVisionAPI() {
+
+	data, err := ioutil.ReadFile("cat.jpg")
+
+	enc := base64.StdEncoding.EncodeToString(data)
+	img := &vision.Image{Content: enc}
+
+	feature := &vision.Feature{
+		Type:       "LABEL_DETECTION",
+		MaxResults: 10,
 	}
 
-	req.Header.Set("Content-Type", w.FormDataContentType())
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return
+	req := &vision.AnnotateImageRequest{
+		Image:    img,
+		Features: []*vision.Feature{feature},
 	}
-	//bodyBytes, _ := ioutil.ReadAll(res.Body)
-	//fmt.Println(string(bodyBytes))
-	fmt.Println(res.Header)
+
+	batch := &vision.BatchAnnotateImagesRequest{
+		Requests: []*vision.AnnotateImageRequest{req},
+	}
+
+	client := &http.Client{
+		Transport: &transport.APIKey{Key: developerKey},
+	}
+	svc, err := vision.New(client)
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := svc.Images.Annotate(batch).Do()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	body, err := json.Marshal(res.Responses[0].LabelAnnotations)
+	fmt.Println(string(body))
+}
+
+func main (){
+	ExampleGoogleCloudVisionAPI()
 }
