@@ -18,7 +18,7 @@ const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
 
 func ExampleGoogleCloudVisionAPI() {
 
-	data, err := ioutil.ReadFile("cat.jpg")
+	data, err := ioutil.ReadFile("images/cat.jpg")
 
 	enc := base64.StdEncoding.EncodeToString(data)
 	img := &vision.Image{Content: enc}
