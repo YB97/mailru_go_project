@@ -7,6 +7,7 @@ import (
 	"log"
 	"bytes"
 	"mime/multipart"
+	//"io/ioutil"
 )
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	if err != nil {
 		return
 	}
-
-	fmt.Println(res)
+	//bodyBytes, _ := ioutil.ReadAll(res.Body)
+	//fmt.Println(string(bodyBytes))
+	fmt.Println(res.Header)
 }
