@@ -8,11 +8,13 @@ import (
 	"log"
 	"net/http"
 	"./project_database"
+	"./auth"
 
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 	"time"
+	"github.com/julienschmidt/httprouter"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
@@ -60,13 +62,19 @@ func InitDatabaseConnection()  {
 	project_database.StartConnection("godb", "gouser", "gopass")
 }
 
+func Router()  {
+	fmt.Printf("%s", "here")
+	router := httprouter.New()
+	router.GET("/reg/", auth.Registration)
+
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
 func main() {
 	start := time.Now()
-	ch := make(chan int)
+	//ch := make(chan int)
 	InitDatabaseConnection()
-	for range ch {
-		go MakeGoogleVisionRequest()
-	}
+	Router()
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
 
 }
