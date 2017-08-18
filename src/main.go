@@ -7,9 +7,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"./project_database"
+
 
 	"google.golang.org/api/googleapi/transport"
-	vision "google.golang.org/api/vision/v1"
+	"google.golang.org/api/vision/v1"
 	"time"
 )
 
@@ -54,10 +56,15 @@ func MakeGoogleVisionRequest() {
 	fmt.Println(string(body))
 }
 
-func main (){
+func InitDatabaseConnection()  {
+	project_database.StartConnection("godb", "gouser", "gopass")
+}
+
+func main() {
 	start := time.Now()
 	ch := make(chan int)
-	for range ch{
+	InitDatabaseConnection()
+	for range ch {
 		go MakeGoogleVisionRequest()
 	}
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
