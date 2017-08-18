@@ -10,13 +10,14 @@ import (
 
 	"google.golang.org/api/googleapi/transport"
 	vision "google.golang.org/api/vision/v1"
+	"time"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
 
 const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
 
-func ExampleGoogleCloudVisionAPI() {
+func MakeGoogleVisionRequest() {
 
 	data, err := ioutil.ReadFile("images/cat.jpg")
 
@@ -54,5 +55,11 @@ func ExampleGoogleCloudVisionAPI() {
 }
 
 func main (){
-	ExampleGoogleCloudVisionAPI()
+	start := time.Now()
+	ch := make(chan int)
+	for range ch{
+		go MakeGoogleVisionRequest()
+	}
+	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+
 }
