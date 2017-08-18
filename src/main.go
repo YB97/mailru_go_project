@@ -7,10 +7,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"./project_database"
+	"os"
+
 
 	"google.golang.org/api/googleapi/transport"
-	vision "google.golang.org/api/vision/v1"
-	"os"
+	"google.golang.org/api/vision/v1"
+	"time"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
@@ -39,8 +42,8 @@ func LoadConfiguration(file string) Config {
 	return config
 }
 
-func ExampleGoogleCloudVisionAPI() {
-	conf := LoadConfiguration("../config/config.json")
+
+func MakeGoogleVisionRequest() {
 
 	data, err := ioutil.ReadFile("images/cat.jpg")
 
@@ -77,6 +80,17 @@ func ExampleGoogleCloudVisionAPI() {
 	fmt.Println(string(body))
 }
 
-func main (){
-	ExampleGoogleCloudVisionAPI()
+func InitDatabaseConnection()  {
+	project_database.StartConnection("godb", "gouser", "gopass")
+}
+
+func main() {
+	start := time.Now()
+	ch := make(chan int)
+	InitDatabaseConnection()
+	for range ch {
+		go MakeGoogleVisionRequest()
+	}
+	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+
 }
