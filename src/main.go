@@ -11,13 +11,11 @@ import (
 	"os"
 	//"../config"
 
+
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 	"time"
 	"github.com/julienschmidt/httprouter"
-	"./auth"
-	//"github.com/julienschmidt/httprouter"
-	//"path/filepath"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
@@ -102,10 +100,18 @@ func InitDatabaseConnection(conf Config)  {
 
 }
 
+func Router()  {
+	fmt.Printf("%s", "here")
+	router := httprouter.New()
+	router.GET("/reg/", auth.Registration)
+
+	log.Fatal(http.ListenAndServe(":8080", router))
+}
+
 func main() {
 	conf:=LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
-	//println(conf)
 	start := time.Now()
+  
 	ch := make(chan int)
 	InitDatabaseConnection(conf)
 	Router()
