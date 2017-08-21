@@ -9,19 +9,25 @@ import (
 	"net/http"
 	"./project_database"
 	"os"
-
+	//"../config"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 	"time"
+	"github.com/julienschmidt/httprouter"
+	"./auth"
+	//"github.com/julienschmidt/httprouter"
+	//"path/filepath"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
 
 //const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
 
+
 type Config struct {
 	Database struct{
+		Name 	   string  `json:"dbname"`
 		User       string  `json:"user"`
 		Password   string  `json:"password"`
 	} `json:"database"`
@@ -42,9 +48,20 @@ func LoadConfiguration(file string) Config {
 	return config
 }
 
+func Router() {
+	router := httprouter.New()
+	router.GET("/reg/", auth.Registration)
 
-func MakeGoogleVisionRequest() {
+	http.ListenAndServe(":8080", router)
+	//log.Fatal(http.ListenAndServe(":8080", router))
+}
 
+
+
+func MakeGoogleVisionRequest(config Config) {
+
+//	key := &Config{}
+	//conf :=
 	data, err := ioutil.ReadFile("images/cat.jpg")
 
 	enc := base64.StdEncoding.EncodeToString(data)
@@ -65,7 +82,7 @@ func MakeGoogleVisionRequest() {
 	}
 
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: conf.Key},
+		Transport: &transport.APIKey{Key: config.Key },
 	}
 	svc, err := vision.New(client)
 	if err != nil {
@@ -80,16 +97,20 @@ func MakeGoogleVisionRequest() {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection()  {
-	project_database.StartConnection("godb", "gouser", "gopass")
+func InitDatabaseConnection(conf Config)  {
+	project_database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
+
 }
 
 func main() {
+	conf:=LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
+	//println(conf)
 	start := time.Now()
 	ch := make(chan int)
-	InitDatabaseConnection()
+	InitDatabaseConnection(conf)
+	Router()
 	for range ch {
-		go MakeGoogleVisionRequest()
+		go MakeGoogleVisionRequest(conf)
 	}
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
 
