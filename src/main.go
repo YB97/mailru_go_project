@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"./project_database"
 	"os"
-	//"../config"
+	"./handlers"
 
 
 	"google.golang.org/api/googleapi/transport"
@@ -17,11 +17,6 @@ import (
 	"time"
 	"github.com/julienschmidt/httprouter"
 )
-
-// https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
-
-//const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
-
 
 type Config struct {
 	Database struct{
@@ -46,20 +41,8 @@ func LoadConfiguration(file string) Config {
 	return config
 }
 
-func Router() {
-	router := httprouter.New()
-	router.GET("/reg/", auth.Registration)
-
-	http.ListenAndServe(":8080", router)
-	//log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-
-
 func MakeGoogleVisionRequest(config Config) {
 
-//	key := &Config{}
-	//conf :=
 	data, err := ioutil.ReadFile("images/cat.jpg")
 
 	enc := base64.StdEncoding.EncodeToString(data)
@@ -103,7 +86,7 @@ func InitDatabaseConnection(conf Config)  {
 func Router()  {
 	fmt.Printf("%s", "here")
 	router := httprouter.New()
-	router.GET("/reg/", auth.Registration)
+	router.GET("/reg/", handlers.Registration)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
