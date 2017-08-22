@@ -6,21 +6,44 @@ import (
 	"log"
 )
 
-func StartConnection(dbname string, user string, password string) {
+
+type Database struct {
+	connection  *gorm.DB
+
+}
+
+
+func (db Database) StartConnection(dbname string, user string, password string) {
 
 	database_connection_arg := user + ":" + password + "@/" + dbname + ""
-	db, err := gorm.Open("mysql", database_connection_arg)
+	conn, err := gorm.Open("mysql", database_connection_arg)
+	db.connection = conn
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	if !db.HasTable(&User{}) {
-		db.CreateTable(&User{})
+	if !db.connection.HasTable(&User{}) {
+		db.connection.CreateTable(&User{})
 	}
-	if !db.HasTable(&Image{}) {
-		db.CreateTable(&User{})
+	if !db.connection.HasTable(&Image{}) {
+		db.connection.CreateTable(&User{})
 	}
-	if !db.HasTable(&Queue{}) {
-		db.CreateTable(&User{})
+	if !db.connection.HasTable(&Queue{}) {
+		db.connection.CreateTable(&User{})
 	}
-	db.AutoMigrate(&User{}, &Image{}, &Queue{})
+	db.connection.AutoMigrate(&User{}, &Image{}, &Queue{})
 }
+
+
+
+
+func (db Database)  CheckExistance(user User) User {
+	err := db.connection.Where(&User{LOGIN: user.LOGIN, PASSWORD: user.PASSWORD}).First(&user)
+	if err != nil {
+		db.connection.NewRecord(user)
+		db.connection.Where(&User{LOGIN: user.LOGIN, PASSWORD: user.PASSWORD}).First(&user)
+	}
+	return user
+}
+
+

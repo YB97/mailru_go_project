@@ -16,8 +16,6 @@ import (
 	"time"
 	"github.com/julienschmidt/httprouter"
 	"./auth"
-	//"github.com/julienschmidt/httprouter"
-	//"path/filepath"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
@@ -50,7 +48,7 @@ func LoadConfiguration(file string) Config {
 
 func Router() {
 	router := httprouter.New()
-	router.GET("/reg/", auth.Registration)
+	router.GET("/reg/:userData", auth.Registration)
 
 	http.ListenAndServe(":8080", router)
 	//log.Fatal(http.ListenAndServe(":8080", router))
@@ -100,6 +98,7 @@ func MakeGoogleVisionRequest(config Config) {
 func InitDatabaseConnection(conf Config)  {
 	project_database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
 
+
 }
 
 func main() {
@@ -107,7 +106,10 @@ func main() {
 	//println(conf)
 	start := time.Now()
 	ch := make(chan int)
+
 	InitDatabaseConnection(conf)
+
+
 	Router()
 	for range ch {
 		go MakeGoogleVisionRequest(conf)
