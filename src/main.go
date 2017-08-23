@@ -8,8 +8,8 @@ import (
 	"log"
 	"net/http"
 	"./project_database"
+	"./recognition"
 	"os"
-	//"../config"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
@@ -47,21 +47,22 @@ func LoadConfiguration(file string) Config {
 }
 
 func Router() {
-	router := httprouter.New()
-	router.GET("/reg/:userData", auth.Registration)
 
+	router := httprouter.New()
+
+	router.POST("/login/", auth.Login)
+	router.GET("/recognition/", recognition.GetRecognitionMainPage)
+	router.GET("/", auth.Index)
+	router.ServeFiles("/static/*filepath", http.Dir("/Users/yana/projects/mailru_go_project/src/static"))
 	http.ListenAndServe(":8080", router)
-	//log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 
 
 func MakeGoogleVisionRequest(config Config) {
 
-//	key := &Config{}
-	//conf :=
-	data, err := ioutil.ReadFile("images/cat.jpg")
 
+	data, err := ioutil.ReadFile("/Users/yana/projects/mailru_go_project/images")
 	enc := base64.StdEncoding.EncodeToString(data)
 	img := &vision.Image{Content: enc}
 
@@ -95,25 +96,26 @@ func MakeGoogleVisionRequest(config Config) {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection(conf Config)  {
+func InitDatabaseConnection(conf Config, user project_database.User)  {
 	project_database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
-
-
+	project_database.CheckExistAndCreate(conf.Database.Name, conf.Database.User, conf.Database.Password, &user)
 }
 
 func main() {
-	conf:=LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
-	//println(conf)
+
+	conf := LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
 	start := time.Now()
 	ch := make(chan int)
 
-	InitDatabaseConnection(conf)
-
-
 	Router()
+	u := project_database.User{ "login", "passw"}
+	InitDatabaseConnection(conf, u)
+
+
 	for range ch {
 		go MakeGoogleVisionRequest(conf)
 	}
+
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
 
 }
