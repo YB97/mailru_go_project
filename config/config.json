@@ -1,0 +1,8 @@
+{
+  "database":{
+    "dbname": "godb",
+    "user": "gouser",
+    "password": "gopass"
+  },
+  "key": "AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo"
+}
