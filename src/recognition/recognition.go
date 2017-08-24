@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	post_template = template.Must(template.ParseFiles(path.Join("/Users/yana/projects/mailru_go_project/src/template", "recoginition.html")))
+	post_template = template.Must(template.ParseFiles(path.Join("./src/template", "recoginition.html")))
 )
 
 func GetRecognitionMainPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {

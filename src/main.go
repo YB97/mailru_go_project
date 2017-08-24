@@ -48,7 +48,8 @@ func Router() {
 	router.POST("/login/", handlers.Login)
 	router.GET("/recognition/", recognition.GetRecognitionMainPage)
 	router.GET("/", handlers.Index)
-	router.ServeFiles("/static/*filepath", http.Dir("/Users/yana/projects/mailru_go_project/src/static"))
+	router.GET("/register/", handlers.Register)
+	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
 	http.ListenAndServe(":8080", router)
 }
 
@@ -57,7 +58,7 @@ func Router() {
 func MakeGoogleVisionRequest(config Config) {
 
 
-	data, err := ioutil.ReadFile("/Users/yana/projects/mailru_go_project/images")
+	data, err := ioutil.ReadFile("./images")
 	enc := base64.StdEncoding.EncodeToString(data)
 	img := &vision.Image{Content: enc}
 
@@ -98,7 +99,7 @@ func InitDatabaseConnection(conf Config, user project_database.User)  {
 
 func main() {
 
-	conf := LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
+	conf := LoadConfiguration("./config/config.json")
 	start := time.Now()
 	ch := make(chan int)
 

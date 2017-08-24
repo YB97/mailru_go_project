@@ -7,10 +7,12 @@ import (
 	"path"
 	"log"
 	"encoding/json"
+	"fmt"
+
 )
 
 var (
-	post_template = template.Must(template.ParseFiles(path.Join("/Users/yana/projects/mailru_go_project/src/template", "layout.html")))
+	post_template = template.Must(template.ParseFiles(path.Join("./src/template", "layout.html")))
 )
 
 type userData struct {
@@ -35,6 +37,21 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Wrong json"))
 		panic(err)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+
+}
+
+func Register(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	queryVal := r.URL.Query()
+	username := queryVal.Get("username")
+	password := queryVal.Get("password")
+
+	if (username != "") || (password != ""){
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Wrong json"))
+		fmt.Printf("Empty username or password field")
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
