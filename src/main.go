@@ -8,15 +8,20 @@ import (
 	"log"
 	"net/http"
 	"./project_database"
+	"./recognition"
 	"os"
-	"./handlers"
-
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 	"time"
 	"github.com/julienschmidt/httprouter"
+	"./handlers"
 )
+
+// https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
+
+//const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
+
 
 type Config struct {
 	Database struct{
@@ -41,10 +46,23 @@ func LoadConfiguration(file string) Config {
 	return config
 }
 
+func Router() {
+
+	router := httprouter.New()
+
+	router.POST("/login/", handlers.Login)
+	router.GET("/recognition/", recognition.GetRecognitionMainPage)
+	router.GET("/", handlers.Index)
+	router.ServeFiles("/static/*filepath", http.Dir("/Users/yana/projects/mailru_go_project/src/static"))
+	http.ListenAndServe(":8080", router)
+}
+
+
+
 func MakeGoogleVisionRequest(config Config) {
 
-	data, err := ioutil.ReadFile("images/cat.jpg")
 
+	data, err := ioutil.ReadFile("/Users/yana/projects/mailru_go_project/images")
 	enc := base64.StdEncoding.EncodeToString(data)
 	img := &vision.Image{Content: enc}
 
@@ -78,29 +96,26 @@ func MakeGoogleVisionRequest(config Config) {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection(conf Config)  {
+func InitDatabaseConnection(conf Config, user project_database.User)  {
 	project_database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
-
-}
-
-func Router()  {
-	fmt.Printf("%s", "here")
-	router := httprouter.New()
-	router.GET("/reg/", handlers.Registration)
-
-	log.Fatal(http.ListenAndServe(":8080", router))
+	project_database.CheckExistAndCreate(conf.Database.Name, conf.Database.User, conf.Database.Password, &user)
 }
 
 func main() {
-	conf:=LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
+
+	conf := LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
 	start := time.Now()
-  
 	ch := make(chan int)
-	InitDatabaseConnection(conf)
+
 	Router()
+	u := project_database.User{ "login", "passw"}
+	InitDatabaseConnection(conf, u)
+
+
 	for range ch {
 		go MakeGoogleVisionRequest(conf)
 	}
+
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
 
 }
