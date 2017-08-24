@@ -18,11 +18,6 @@ import (
 	"./handlers"
 )
 
-// https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
-
-//const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
-
-
 type Config struct {
 	Database struct{
 		Name 	   string  `json:"dbname"`
