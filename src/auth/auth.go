@@ -3,8 +3,6 @@ package auth
 import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	//"fmt"
-	//"encoding/json"
 	"html/template"
 	"path"
 	"log"
@@ -40,6 +38,5 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
-
 
 }
