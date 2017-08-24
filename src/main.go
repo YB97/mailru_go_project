@@ -16,11 +16,13 @@ import (
 	"time"
 	"github.com/julienschmidt/httprouter"
 	"./auth"
+	"./registration"
 )
 
 // https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
 
-//const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
+//const developerK
+// ey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
 
 
 type Config struct {
@@ -51,6 +53,7 @@ func Router() {
 	router := httprouter.New()
 
 	router.POST("/login/", auth.Login)
+	router.GET("/registration/", registration.Registrate)
 	router.GET("/recognition/", recognition.GetRecognitionMainPage)
 	router.GET("/", auth.Index)
 	router.ServeFiles("/static/*filepath", http.Dir("/Users/yana/projects/mailru_go_project/src/static"))
@@ -99,7 +102,8 @@ func MakeGoogleVisionRequest(config Config) {
 
 func InitDatabaseConnection(conf Config, user project_database.User)  {
 	project_database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
-	project_database.CheckExistAndCreate(conf.Database.Name, conf.Database.User, conf.Database.Password, &user)
+	//fmt.Println()
+	//project_database.CheckExistAndCreate(conf.Database.Name, conf.Database.User, conf.Database.Password, &user)
 }
 
 func main() {

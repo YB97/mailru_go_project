@@ -7,16 +7,24 @@ import (
 	"path"
 	"log"
 	"encoding/json"
+	//"fmt"
+	"../project_database"
+	"fmt"
 )
+
+//type userData struct {
+//	Login string `json:"login"`
+//	Password string `json:"password"`
+//}
 
 var (
 	post_template = template.Must(template.ParseFiles(path.Join("/Users/yana/projects/mailru_go_project/src/template", "layout.html")))
 )
 
-type userData struct {
-	Login string `json:"login"`
-	Password string `json:"password"`
-}
+//type userData struct {
+//	Login string `json:"login"`
+//	Password string `json:"password"`
+//}
 
 func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if err := post_template.ExecuteTemplate(w, "layout", nil); err != nil {
@@ -29,7 +37,7 @@ func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
 	jsonUserData := queryVal.Get("userData")
-	var ud userData
+	var ud project_database.User
 	err := json.Unmarshal([]byte(jsonUserData), &ud)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -38,5 +46,8 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	} else {
 		w.WriteHeader(http.StatusOK)
 	}
-
+	fmt.Println(ud.LOGIN)
+	fmt.Println(project_database.Get())
+	//project_database.CheckExistAndCreate(project_database.Get(), &ud)
 }
+
