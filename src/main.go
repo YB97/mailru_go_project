@@ -11,26 +11,30 @@ import (
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
-	//"time"
+	"time"
 	"github.com/julienschmidt/httprouter"
 	"./handlers"
 	"./configuration"
 	"github.com/jinzhu/gorm"
-	//"path/filepath"
+
+	"path/filepath"
+
 )
 
 
 
-func Router() {
+
+func Router(hand handlers.Handler) {
 
 	router := httprouter.New()
 
-	router.POST("/login/", handlers.Login)
+	router.GET("/login/", hand.Login)
 	router.GET("/recognition/", handlers.GetRecognitionMainPage)
-	router.POST("/recognition/load_file/", handlers.LoadFileForRecoginiton)
-//	router.GET("/", handlers.Index)
+	router.GET("/", handlers.Index)
 	router.GET("/registration/", handlers.RegPage)
-	router.ServeFiles("/static/*filepath", http.Dir("./mailru_go_project/src/static"))
+	router.POST("/reg/", hand.Register)
+	router.POST("/log/", hand.Login)
+	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
 	http.ListenAndServe(":8080", router)
 }
 
@@ -73,10 +77,13 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection(conf configuration.Config)  {
-	database_connection_arg := conf.Database.User + ":" + conf.Database.Password + "@/" + conf.Database.Name + ""
+
+func InitDatabaseConnection(conf configuration.Config) handlers.Handler  {
+	database_connection_arg := conf.Database.User + ":" +
+		conf.Database.Password + "@/" + conf.Database.Name + ""
 	db, err := gorm.Open("mysql", database_connection_arg)
-//	handl := handlers.Handler{{db}}
+	main_handler := handlers.Handler{db}
+
 	defer db.Close()
 
 	if err != nil {
@@ -93,25 +100,26 @@ func InitDatabaseConnection(conf configuration.Config)  {
 		db.CreateTable(&database.Queue{})
 	}
 	db.AutoMigrate(&database.User{}, &database.Image{}, &database.Queue{})
+
+	return main_handler
 }
 
 func main() {
-	//conf_path, err := filepath.Abs(filepath.Join("./mailru_go_project/src/configuration/config.json"))
-	//if err!= nil{
-	//	log.Fatal(err)
-	//}
-	//conf := configuration.LoadConfiguration(conf_path)
-	//start := time.Now()
-	//ch := make(chan int)
+	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
+	if err!= nil{
+		log.Fatal(err)
+	}
+	conf := configuration.LoadConfiguration(conf_path)
+	start := time.Now()
+	ch := make(chan int)
 
-	Router()
-	//InitDatabaseConnection(conf)
-	//
-	//
-	//for range ch {
-	//	go MakeGoogleVisionRequest(conf)
-	//}
+	Router(InitDatabaseConnection(conf))
 
-	//fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+	for range ch {
+		go MakeGoogleVisionRequest(conf)
+	}
+
+	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+
 
 }
