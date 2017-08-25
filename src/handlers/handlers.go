@@ -34,7 +34,7 @@ type userData struct {
 }
 
 type Handler struct{
-	db_instance *gorm.DB
+	DB_instance *gorm.DB
 }
 
 func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -73,10 +73,10 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		panic(err)
 	} else {
 		user := database.User{LOGIN: username, PASSWORD: password}
-		h.db_instance.First(&user)
-		user.UUID = string(user_uuid)
-		h.db_instance.Save(&user)
-		cookie := &http.Cookie{Name: "test", Value: string(user_uuid), MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour) }
+		h.DB_instance.First(&user)
+		user.UUID = user_uuid.String()
+		h.DB_instance.Save(&user)
+		cookie := &http.Cookie{Name: "test", Value: user_uuid.String(), MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour) }
 		http.SetCookie(w, cookie)
 		w.WriteHeader(http.StatusOK)
 	}
@@ -102,11 +102,15 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 		fmt.Printf("Empty username or password field")
 	} else {
 
-	//	user := database.User{LOGIN:username, PASSWORD: string(hash)}
+
+		//user := database.User{LOGIN:username, PASSWORD: string(hash)}
+		//if user != ""{
+		//
+		//}
 
 		NewUser := database.User{LOGIN:username, PASSWORD: string(hash)}
-		h.db_instance.NewRecord(NewUser)
-		h.db_instance.Create(&NewUser)
+		h.DB_instance.NewRecord(NewUser)
+		h.DB_instance.Create(&NewUser)
 		w.WriteHeader(http.StatusOK)
 	}
 

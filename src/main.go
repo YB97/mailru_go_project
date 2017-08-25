@@ -19,6 +19,8 @@ import (
 
 	"path/filepath"
 
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+
 )
 
 
