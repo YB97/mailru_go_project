@@ -16,8 +16,11 @@ import (
 	"./handlers"
 	"./configuration"
 	"github.com/jinzhu/gorm"
+
 	"path/filepath"
+
 )
+
 
 
 
@@ -74,11 +77,13 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 	fmt.Println(string(body))
 }
 
+
 func InitDatabaseConnection(conf configuration.Config) handlers.Handler  {
 	database_connection_arg := conf.Database.User + ":" +
 		conf.Database.Password + "@/" + conf.Database.Name + ""
 	db, err := gorm.Open("mysql", database_connection_arg)
 	main_handler := handlers.Handler{db}
+
 	defer db.Close()
 
 	if err != nil {
@@ -115,5 +120,6 @@ func main() {
 	}
 
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+
 
 }

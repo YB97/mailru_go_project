@@ -102,10 +102,8 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 		fmt.Printf("Empty username or password field")
 	} else {
 
-		user := database.User{LOGIN:username, PASSWORD: string(hash)}
-		if user != ""{
+	//	user := database.User{LOGIN:username, PASSWORD: string(hash)}
 
-		}
 		NewUser := database.User{LOGIN:username, PASSWORD: string(hash)}
 		h.db_instance.NewRecord(NewUser)
 		h.db_instance.Create(&NewUser)
