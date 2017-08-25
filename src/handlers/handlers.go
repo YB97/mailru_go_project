@@ -15,6 +15,7 @@ import (
 		"github.com/julienschmidt/httprouter"
 	"github.com/satori/go.uuid"
 	"time"
+	"io/ioutil"
 )
 
 var (
@@ -25,6 +26,9 @@ var (
 	recognition_template = template.Must(template.ParseFiles(path.Join("./mailru_go_project/src/template", "recoginition.html")))
 )
 
+var (
+	response_template = template.Must(template.ParseFiles(path.Join("./mailru_go_project/src/template", "response.html")))
+)
 type userData struct {
 	Login string `json:"login"`
 	Password string `json:"password"`
@@ -48,6 +52,12 @@ func GetRecognitionPage(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 	}
 }
 
+func GetResponse(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if err := response_template.ExecuteTemplate(w, "response", nil); err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
 
 func (h Handler) LoginUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
@@ -111,5 +121,20 @@ func (h Handler) CreateNewUser(w http.ResponseWriter, r *http.Request, ps httpro
 
 
 func (h Handler) GetImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
-
+	file, handler, err := r.FormFile("file")
+		if err != nil {
+				fmt.Println(err)
+		}
+		data, err := ioutil.ReadAll(file)
+		if err != nil {
+				fmt.Println(err)
+		}
+		err = ioutil.WriteFile("./mailru_go_project/images/"+handler.Filename, data, 0777)
+		if err != nil {
+			fmt.Println(err)
+		}
+	//image := database.Image{}
+	NewImage:=database.Image{ handler.Filename}
+	h.DB_instance.NewRecord(NewImage)
+	h.DB_instance.Create(&NewImage)
 }

@@ -10,10 +10,10 @@ type User struct {
 }
 
 type Image struct {
-	ID       int    `gorm:"primary_key"`
+	//ID       int    `gorm:"primary_key; AUTO_INCREMENT"`
 	FILENAME string `gorm:"size:255"`
-	User     User   `gorm:"ForeignKey:UserID"`
-	UserID   uint
+//	User     User   `gorm:"ForeignKey:UserID"`
+//	UserID   uint
 }
 
 type Queue struct {
