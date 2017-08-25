@@ -3,6 +3,7 @@ package database
 type User struct {
 	LOGIN    string `gorm:"size:255"`
 	PASSWORD string `gorm:"size:255"`
+	UUID string `gorm:"size:255"`
 }
 
 type Image struct {

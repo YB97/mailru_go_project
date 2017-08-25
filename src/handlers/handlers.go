@@ -13,9 +13,10 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"../configuration"
 	"../database"
-
+	"github.com/satori/go.uuid"
 	"github.com/julienschmidt/httprouter"
 	"path/filepath"
+	"time"
 )
 
 var (
@@ -62,11 +63,31 @@ func Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	jsonUserData := queryVal.Get("userData")
 	var ud userData
 	err := json.Unmarshal([]byte(jsonUserData), &ud)
+	user_uuid := string(uuid.NewV4())
+	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
+	if err!= nil{
+		log.Fatal(err)
+	}
+	conf := configuration.LoadConfiguration(conf_path)
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Wrong json"))
 		panic(err)
 	} else {
+		db, err := gorm.Open("mysql", conf.Database.User + ":" +
+			conf.Database.Password + "@/" + conf.Database.Name + "")
+		defer db.Close()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		user := database.User{LOGIN: "login_from_json", PASSWORD: "passwd from json"}
+		db.First(&user)
+		user.UUID = user_uuid
+		db.Save(&user)
+		cookie := &http.Cookie{Name: "test", Value: user_uuid, MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour) }
+		http.SetCookie(w, cookie)
 		w.WriteHeader(http.StatusOK)
 	}
 
