@@ -1,6 +1,30 @@
 {{define "recognition"}}
 <!-- FONT AWESOME THEME -->
 <!-- load the JS files in the right order -->
-<label class="control-label">Select File</label>
-<input id="input-1" type="file" class="file">
+<html>
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="/static/recognition/css/styleRecog.css">
+
+<body>
+
+<h2 class="form-signin-heading">Let's get it started</h2>
+<div class="fileupload fileupload-new" data-provides="fileupload">
+    <span class="btn btn-primary btn-file"><span class="fileupload-new">Select file</span>
+    <span class="fileupload-exists">Change</span>         <input type="file" /></span>
+    <span class="fileupload-preview"></span>
+    <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
+</div>
+<form class="form-signin">
+<div>
+    <button id="send-btn" class="btn btn-lg btn-primary btn-block" type="submit">Send</button>
+</div>
+</form>
+
+<script type="text/javascript" src="/static/common/js/jquery.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/recognition/js/recog.js">
+</script>
+</body>
+</html>
 {{end}}
