@@ -1,6 +1,6 @@
 $('#reg_btn').click(function () {
     window.location.replace("/registration/")
-})
+});
 
 $('#login_btn').click(function () {
     let login = $('#login').val();

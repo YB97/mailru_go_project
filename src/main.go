@@ -11,12 +11,12 @@ import (
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
-	"time"
+	//"time"
 	"github.com/julienschmidt/httprouter"
 	"./handlers"
 	"./configuration"
 	"github.com/jinzhu/gorm"
-	"path/filepath"
+	//"path/filepath"
 )
 
 
@@ -27,9 +27,10 @@ func Router() {
 
 	router.POST("/login/", handlers.Login)
 	router.GET("/recognition/", handlers.GetRecognitionMainPage)
-	router.GET("/", handlers.Index)
+	router.POST("/recognition/load_file/", handlers.LoadFileForRecoginiton)
+//	router.GET("/", handlers.Index)
 	router.GET("/registration/", handlers.RegPage)
-	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
+	router.ServeFiles("/static/*filepath", http.Dir("./mailru_go_project/src/static"))
 	http.ListenAndServe(":8080", router)
 }
 
@@ -73,9 +74,9 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 }
 
 func InitDatabaseConnection(conf configuration.Config)  {
-	database_connection_arg := conf.Database.User + ":" +
-		conf.Database.Password + "@/" + conf.Database.Name + ""
+	database_connection_arg := conf.Database.User + ":" + conf.Database.Password + "@/" + conf.Database.Name + ""
 	db, err := gorm.Open("mysql", database_connection_arg)
+//	handl := handlers.Handler{{db}}
 	defer db.Close()
 
 	if err != nil {
@@ -95,22 +96,22 @@ func InitDatabaseConnection(conf configuration.Config)  {
 }
 
 func main() {
-	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
-	if err!= nil{
-		log.Fatal(err)
-	}
-	conf := configuration.LoadConfiguration(conf_path)
-	start := time.Now()
-	ch := make(chan int)
+	//conf_path, err := filepath.Abs(filepath.Join("./mailru_go_project/src/configuration/config.json"))
+	//if err!= nil{
+	//	log.Fatal(err)
+	//}
+	//conf := configuration.LoadConfiguration(conf_path)
+	//start := time.Now()
+	//ch := make(chan int)
 
 	Router()
-	InitDatabaseConnection(conf)
+	//InitDatabaseConnection(conf)
+	//
+	//
+	//for range ch {
+	//	go MakeGoogleVisionRequest(conf)
+	//}
 
-
-	for range ch {
-		go MakeGoogleVisionRequest(conf)
-	}
-
-	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
+	//fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
 
 }
