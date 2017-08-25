@@ -18,16 +18,13 @@ import (
 )
 
 var (
-	index_template = template.Must(template.ParseFiles(path.Join("./src/template", "layout.html")))
+	login_template = template.Must(template.ParseFiles(path.Join("./src/template", "auth.html")))
 )
 
 var (
 	recognition_template = template.Must(template.ParseFiles(path.Join("./src/template", "recoginition.html")))
 )
 
-var (
-	reg_template = template.Must(template.ParseFiles(path.Join("./src/template", "registration.html")))
-)
 type userData struct {
 	Login string `json:"login"`
 	Password string `json:"password"`
@@ -37,29 +34,22 @@ type Handler struct{
 	DB_instance *gorm.DB
 }
 
-func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if err := index_template.ExecuteTemplate(w, "layout", nil); err != nil {
+func GetLoginPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if err := login_template.ExecuteTemplate(w, "auth", nil); err != nil {
 		log.Println(err.Error())
 		http.Error(w, http.StatusText(500), 500)
 	}
 }
 
-func GetRecognitionMainPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {
+func GetRecognitionPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {
 	if err := recognition_template.ExecuteTemplate(w, "recognition", nil); err != nil {
 		log.Println(err.Error())
 		http.Error(w, http.StatusText(500), 500)
 	}
 }
 
-func RegPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if err := reg_template.ExecuteTemplate(w, "registration", nil); err != nil {
-		log.Println(err.Error())
-		http.Error(w, http.StatusText(500), 500)
-	}
-}
 
-
-func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (h Handler) LoginUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
 	jsonUserData := queryVal.Get("userData")
 	var ud userData
@@ -83,7 +73,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 }
 
-func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (h Handler) CreateNewUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
 	jsonUserData := queryVal.Get("userData")
 	var ud userData

@@ -30,12 +30,13 @@ func Router(hand handlers.Handler) {
 
 	router := httprouter.New()
 
-	router.GET("/login/", hand.Login)
-	router.GET("/recognition/", handlers.GetRecognitionMainPage)
-	router.GET("/", handlers.Index)
-	router.GET("/registration/", handlers.RegPage)
-	router.POST("/reg/", hand.Register)
-	router.POST("/log/", hand.Login)
+	router.GET("/", handlers.GetLoginPage)
+	// Login handlers
+	router.POST("/login/", hand.LoginUser)
+	// Registration handlers
+	router.POST("/registration/", hand.CreateNewUser)
+	// Recognition handlers
+	router.GET("/recognition/", handlers.GetRecognitionPage)
 	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
 	http.ListenAndServe(":8080", router)
 }
@@ -83,10 +84,9 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 func InitDatabaseConnection(conf configuration.Config) handlers.Handler  {
 	database_connection_arg := conf.Database.User + ":" +
 		conf.Database.Password + "@/" + conf.Database.Name + ""
+
 	db, err := gorm.Open("mysql", database_connection_arg)
 	main_handler := handlers.Handler{db}
-
-	defer db.Close()
 
 	if err != nil {
 		log.Fatal(err)

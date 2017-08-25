@@ -1,0 +1,33 @@
+{{define "auth"}}
+<html >
+<head>
+    <meta charset="UTF-8">
+
+    <link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
+    <link rel='stylesheet prefetch' href='http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
+    <link rel='stylesheet' href="static/auth/css/style.css">
+    <title>Авторизация</title>
+
+</head>
+
+<body>
+<div class="wrapper">
+    <div class="form-signin">
+        <h2 class="form-signin-heading">Пожалуйста, авторизируйтесь</h2>
+        <input id="login" type="text" class="form-control" placeholder="Email Address" autofocus="" />
+        <input id="password" type="password" class="form-control" placeholder="Password"/>
+        <label class="checkbox">
+            <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe"> Запомнить
+        </label>
+        <button id="login_btn" class="btn btn-lg btn-primary btn-block">Войти</button>
+        <button id="registration_btn" class="btn btn-lg btn-primary btn-block btn-success">Регистрация</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="../static/common/js/jquery.min.js"></script>
+<script type="text/javascript" src="../static/auth/js/auth.js">
+</script>
+
+</body>
+</html>
+{{end}}
