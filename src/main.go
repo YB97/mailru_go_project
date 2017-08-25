@@ -21,14 +21,16 @@ import (
 
 
 
-func Router() {
+func Router(hand handlers.Handler) {
 
 	router := httprouter.New()
 
-	router.POST("/login/", handlers.Login)
+	router.GET("/login/", hand.Login)
 	router.GET("/recognition/", handlers.GetRecognitionMainPage)
 	router.GET("/", handlers.Index)
 	router.GET("/registration/", handlers.RegPage)
+	router.POST("/reg/", hand.Register)
+	router.POST("/log/", hand.Login)
 	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
 	http.ListenAndServe(":8080", router)
 }
@@ -72,10 +74,11 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection(conf configuration.Config)  {
+func InitDatabaseConnection(conf configuration.Config) handlers.Handler  {
 	database_connection_arg := conf.Database.User + ":" +
 		conf.Database.Password + "@/" + conf.Database.Name + ""
 	db, err := gorm.Open("mysql", database_connection_arg)
+	main_handler := handlers.Handler{db}
 	defer db.Close()
 
 	if err != nil {
@@ -92,6 +95,8 @@ func InitDatabaseConnection(conf configuration.Config)  {
 		db.CreateTable(&database.Queue{})
 	}
 	db.AutoMigrate(&database.User{}, &database.Image{}, &database.Queue{})
+
+	return main_handler
 }
 
 func main() {
@@ -103,9 +108,7 @@ func main() {
 	start := time.Now()
 	ch := make(chan int)
 
-	Router()
-	InitDatabaseConnection(conf)
-
+	Router(InitDatabaseConnection(conf))
 
 	for range ch {
 		go MakeGoogleVisionRequest(conf)
