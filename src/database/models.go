@@ -1,4 +1,4 @@
-package project_database
+package database
 
 type User struct {
 	LOGIN    string `gorm:"size:255"`

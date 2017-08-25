@@ -2,12 +2,18 @@ package handlers
 
 import (
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"html/template"
 	"path"
 	"log"
 	"encoding/json"
 	"fmt"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"../configuration"
+	"../database"
 
 )
 
@@ -19,6 +25,7 @@ type userData struct {
 	Login string `json:"login"`
 	Password string `json:"password"`
 }
+
 
 func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if err := post_template.ExecuteTemplate(w, "layout", nil); err != nil {
@@ -47,12 +54,21 @@ func Register(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
 	username := queryVal.Get("username")
 	password := queryVal.Get("password")
+	conf := configuration.LoadConfiguration("./config/config.json")
 
 	if (username != "") || (password != ""){
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Wrong json"))
 		fmt.Printf("Empty username or password field")
 	} else {
+		db, err := gorm.Open("mysql", conf.Database.User + ":" +
+			conf.Database.Password + "@/" + conf.Database.Name + "")
+		if err != nil {
+			log.Fatal(err)
+		}
+		NewUser := database.User{LOGIN:username, PASSWORD: string(bcrypt.GenerateFromPassword([]byte(password), 8))}
+		db.NewRecord(NewUser)
+		db.Create(&NewUser)
 		w.WriteHeader(http.StatusOK)
 	}
 

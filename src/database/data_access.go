@@ -1,4 +1,4 @@
-package project_database
+package database
 
 import (
 	"github.com/jinzhu/gorm"
@@ -20,10 +20,10 @@ func StartConnection(dbname string, user string, password string) {
 		db.CreateTable(&User{})
 	}
 	if !db.HasTable(&Image{}) {
-		db.CreateTable(&User{})
+		db.CreateTable(&Image{})
 	}
 	if !db.HasTable(&Queue{}) {
-		db.CreateTable(&User{})
+		db.CreateTable(&Queue{})
 	}
 	db.AutoMigrate(&User{}, &Image{}, &Queue{})
 }

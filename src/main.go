@@ -7,39 +7,18 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"./project_database"
+	"./database"
 	"./recognition"
-	"os"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 	"time"
 	"github.com/julienschmidt/httprouter"
 	"./handlers"
+	"./configuration"
 )
 
-type Config struct {
-	Database struct{
-		Name 	   string  `json:"dbname"`
-		User       string  `json:"user"`
-		Password   string  `json:"password"`
-	} `json:"database"`
 
-	Key string `json:"key"`
-}
-
-func LoadConfiguration(file string) Config {
-	var config Config
-	configFile, err := os.Open(file)
-	defer configFile.Close()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	return config
-}
 
 func Router() {
 
@@ -55,7 +34,7 @@ func Router() {
 
 
 
-func MakeGoogleVisionRequest(config Config) {
+func MakeGoogleVisionRequest(config configuration.Config) {
 
 
 	data, err := ioutil.ReadFile("./images")
@@ -92,19 +71,17 @@ func MakeGoogleVisionRequest(config Config) {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection(conf Config, user project_database.User)  {
-	project_database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
-	project_database.CheckExistAndCreate(conf.Database.Name, conf.Database.User, conf.Database.Password, &user)
+func InitDatabaseConnection(conf configuration.Config, user database.User)  {
+	database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
 }
 
 func main() {
-
-	conf := LoadConfiguration("./config/config.json")
+	conf := configuration.LoadConfiguration("./Configuration/config.json")
 	start := time.Now()
 	ch := make(chan int)
 
 	Router()
-	u := project_database.User{ "login", "passw"}
+	u := database.User{ "login", "passw"}
 	InitDatabaseConnection(conf, u)
 
 
