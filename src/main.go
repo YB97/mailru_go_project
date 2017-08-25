@@ -36,7 +36,7 @@ func Router(hand handlers.Handler) {
 	router.GET("/registration/", handlers.RegPage)
 	router.POST("/reg/", hand.Register)
 	router.POST("/log/", hand.Login)
-	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
+	router.ServeFiles("/static/*filepath", http.Dir("./mailru_go_project/src/static"))
 	http.ListenAndServe(":8080", router)
 }
 
@@ -107,7 +107,7 @@ func InitDatabaseConnection(conf configuration.Config) handlers.Handler  {
 }
 
 func main() {
-	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
+	conf_path, err := filepath.Abs(filepath.Join("./mailru_go_project/src/configuration/config.json"))
 	if err!= nil{
 		log.Fatal(err)
 	}

@@ -18,15 +18,15 @@ import (
 )
 
 var (
-	index_template = template.Must(template.ParseFiles(path.Join("./src/template", "layout.html")))
+	index_template = template.Must(template.ParseFiles(path.Join("./mailru_go_project/src/template", "layout.html")))
 )
 
 var (
-	recognition_template = template.Must(template.ParseFiles(path.Join("./src/template", "recoginition.html")))
+	recognition_template = template.Must(template.ParseFiles(path.Join("./mailru_go_project/src/template", "recoginition.html")))
 )
 
 var (
-	reg_template = template.Must(template.ParseFiles(path.Join("./src/template", "registration.html")))
+	reg_template = template.Must(template.ParseFiles(path.Join("./mailru_go_project/src/template", "registration.html")))
 )
 type userData struct {
 	Login string `json:"login"`
