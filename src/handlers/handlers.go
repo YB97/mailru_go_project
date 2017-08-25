@@ -15,6 +15,7 @@ import (
 	"../database"
 
 	"github.com/julienschmidt/httprouter"
+	"path/filepath"
 )
 
 var (
@@ -23,6 +24,10 @@ var (
 
 var (
 	recognition_template = template.Must(template.ParseFiles(path.Join("./src/template", "recoginition.html")))
+)
+
+var (
+	reg_template = template.Must(template.ParseFiles(path.Join("./src/template", "registration.html")))
 )
 type userData struct {
 	Login string `json:"login"`
@@ -39,6 +44,13 @@ func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func GetRecognitionMainPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {
 	if err := recognition_template.ExecuteTemplate(w, "recognition", nil); err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func RegPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	if err := reg_template.ExecuteTemplate(w, "registration", nil); err != nil {
 		log.Println(err.Error())
 		http.Error(w, http.StatusText(500), 500)
 	}
@@ -64,7 +76,15 @@ func Register(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
 	username := queryVal.Get("username")
 	password := queryVal.Get("password")
-	conf := configuration.LoadConfiguration("./config/config.json")
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 8)
+	if err!= nil{
+		log.Fatal(err)
+	}
+	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
+	if err!= nil{
+		log.Fatal(err)
+	}
+	conf := configuration.LoadConfiguration(conf_path)
 
 	if (username != "") || (password != ""){
 		w.WriteHeader(http.StatusInternalServerError)
@@ -78,7 +98,7 @@ func Register(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		NewUser := database.User{LOGIN:username, PASSWORD: string(bcrypt.GenerateFromPassword([]byte(password), 8))}
+		NewUser := database.User{LOGIN:username, PASSWORD: string(hash)}
 		db.NewRecord(NewUser)
 		db.Create(&NewUser)
 		w.WriteHeader(http.StatusOK)
