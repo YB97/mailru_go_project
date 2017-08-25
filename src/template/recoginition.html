@@ -8,22 +8,22 @@
 
 <body>
 
-<h2 class="form-signin-heading">Let's get it started</h2>
-<div class="fileupload fileupload-new" data-provides="fileupload">
-    <span class="btn btn-primary btn-file"><span class="fileupload-new">Select file</span>
-    <span class="fileupload-exists">Change</span>         <input type="file" /></span>
-    <span class="fileupload-preview"></span>
-    <a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>
-</div>
-<form class="form-signin">
-<div>
-    <button id="send-btn" class="btn btn-lg btn-primary btn-block" type="submit">Send</button>
-</div>
+<!--<h2 class="form-signin-heading">Let's get it started</h2>-->
+<!--<div class="fileupload fileupload-new" data-provides="fileupload">-->
+    <!--<span class="btn btn-primary btn-file"><span class="fileupload-new">Select file</span>-->
+    <!--<span class="fileupload-exists">Change</span>         <input id="file_container" name="file" type="file" /></span>-->
+    <!--<span class="fileupload-preview"></span>-->
+    <!--<a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>-->
+<!--</div>-->
+<form enctype="multipart/form-data" action="load_file/" method="post">
+    <input type="file" name="file" />
+    <input type="submit" value="upload" />
 </form>
 
 <script type="text/javascript" src="/static/common/js/jquery.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/recognition/js/recog.js">
+<script type="text/javascript" src="/static/recognition/js/put_file.min.js"></script>
+<script type="text/javascript" src="/static/recognition/js/recognition.js">
 </script>
 </body>
 </html>

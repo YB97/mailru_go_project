@@ -1,6 +1,7 @@
 package database
 
 type User struct {
+
 	ID       int    `gorm:"primary_key"`
 	LOGIN    string `gorm:"size:255"`
 	PASSWORD string `gorm:"size:255"`

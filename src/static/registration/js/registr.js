@@ -5,5 +5,6 @@ $('#reg_btn').click(function () {
 
         window.location.replace("/recognition/");
 
+
     })
 });
