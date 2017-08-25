@@ -16,6 +16,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"./handlers"
 	"./configuration"
+	"github.com/jinzhu/gorm"
 )
 
 
@@ -25,7 +26,7 @@ func Router() {
 	router := httprouter.New()
 
 	router.POST("/login/", handlers.Login)
-	router.GET("/recognition/", recognition.GetRecognitionMainPage)
+	router.GET("/recognition/", handlers.GetRecognitionMainPage)
 	router.GET("/", handlers.Index)
 	router.GET("/register/", handlers.Register)
 	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
@@ -71,8 +72,26 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection(conf configuration.Config, user database.User)  {
-	database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
+func InitDatabaseConnection(conf configuration.Config)  {
+	database_connection_arg := conf.Database.User + ":" +
+		conf.Database.Password + "@/" + conf.Database.Name + ""
+	db, err := gorm.Open("mysql", database_connection_arg)
+	defer db.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !db.HasTable(&database.User{}) {
+		db.CreateTable(&database.User{})
+	}
+	if !db.HasTable(&database.Image{}) {
+		db.CreateTable(&database.Image{})
+	}
+	if !db.HasTable(&database.Queue{}) {
+		db.CreateTable(&database.Queue{})
+	}
+	db.AutoMigrate(&database.User{}, &database.Image{}, &database.Queue{})
 }
 
 func main() {
@@ -81,8 +100,7 @@ func main() {
 	ch := make(chan int)
 
 	Router()
-	u := database.User{ "login", "passw"}
-	InitDatabaseConnection(conf, u)
+	InitDatabaseConnection(conf)
 
 
 	for range ch {

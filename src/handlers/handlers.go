@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"html/template"
@@ -15,12 +14,16 @@ import (
 	"../configuration"
 	"../database"
 
+	"github.com/julienschmidt/httprouter"
 )
 
 var (
-	post_template = template.Must(template.ParseFiles(path.Join("./src/template", "layout.html")))
+	index_template = template.Must(template.ParseFiles(path.Join("./src/template", "layout.html")))
 )
 
+var (
+	recognition_template = template.Must(template.ParseFiles(path.Join("./src/template", "recoginition.html")))
+)
 type userData struct {
 	Login string `json:"login"`
 	Password string `json:"password"`
@@ -28,7 +31,14 @@ type userData struct {
 
 
 func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	if err := post_template.ExecuteTemplate(w, "layout", nil); err != nil {
+	if err := index_template.ExecuteTemplate(w, "layout", nil); err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func GetRecognitionMainPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {
+	if err := recognition_template.ExecuteTemplate(w, "recognition", nil); err != nil {
 		log.Println(err.Error())
 		http.Error(w, http.StatusText(500), 500)
 	}
@@ -63,6 +73,8 @@ func Register(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	} else {
 		db, err := gorm.Open("mysql", conf.Database.User + ":" +
 			conf.Database.Password + "@/" + conf.Database.Name + "")
+		defer db.Close()
+
 		if err != nil {
 			log.Fatal(err)
 		}
