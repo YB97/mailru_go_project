@@ -7,63 +7,38 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"./project_database"
-	"./recognition"
-	"os"
+	"./database"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
 	"time"
 	"github.com/julienschmidt/httprouter"
-	"./auth"
+	"./handlers"
+	"./configuration"
+	"github.com/jinzhu/gorm"
+	"path/filepath"
 )
 
-// https://github.com/google/google-api-go-client/blob/master/GettingStarted.md
 
-//const developerKey = `AIzaSyA9QNmSSQNO0JF_HSQUnQqdqRTR6YWYyBo`
-
-
-type Config struct {
-	Database struct{
-		Name 	   string  `json:"dbname"`
-		User       string  `json:"user"`
-		Password   string  `json:"password"`
-	} `json:"database"`
-
-	Key string `json:"key"`
-}
-
-func LoadConfiguration(file string) Config {
-	var config Config
-	configFile, err := os.Open(file)
-	defer configFile.Close()
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&config)
-	return config
-}
 
 func Router() {
 
 	router := httprouter.New()
 
-	router.POST("/login/", auth.Login)
-	router.GET("/recognition/", recognition.GetRecognitionMainPage)
-	router.GET("/", auth.Index)
-	router.ServeFiles("/static/*filepath", http.Dir("/Users/yana/projects/mailru_go_project/src/static"))
+	router.POST("/login/", handlers.Login)
+	router.GET("/recognition/", handlers.GetRecognitionMainPage)
+	router.GET("/", handlers.Index)
+	router.GET("/registration/", handlers.RegPage)
+	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
 	http.ListenAndServe(":8080", router)
 }
 
 
 
+func MakeGoogleVisionRequest(config configuration.Config) {
 
-func MakeGoogleVisionRequest(config Config) {
 
-
-	data, err := ioutil.ReadFile("/Users/yana/projects/mailru_go_project/images")
+	data, err := ioutil.ReadFile("./images")
 	enc := base64.StdEncoding.EncodeToString(data)
 	img := &vision.Image{Content: enc}
 
@@ -97,20 +72,39 @@ func MakeGoogleVisionRequest(config Config) {
 	fmt.Println(string(body))
 }
 
-func InitDatabaseConnection(conf Config, user project_database.User)  {
-	project_database.StartConnection(conf.Database.Name, conf.Database.User, conf.Database.Password)
-	project_database.CheckExistAndCreate(conf.Database.Name, conf.Database.User, conf.Database.Password, &user)
+func InitDatabaseConnection(conf configuration.Config)  {
+	database_connection_arg := conf.Database.User + ":" +
+		conf.Database.Password + "@/" + conf.Database.Name + ""
+	db, err := gorm.Open("mysql", database_connection_arg)
+	defer db.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if !db.HasTable(&database.User{}) {
+		db.CreateTable(&database.User{})
+	}
+	if !db.HasTable(&database.Image{}) {
+		db.CreateTable(&database.Image{})
+	}
+	if !db.HasTable(&database.Queue{}) {
+		db.CreateTable(&database.Queue{})
+	}
+	db.AutoMigrate(&database.User{}, &database.Image{}, &database.Queue{})
 }
 
 func main() {
-
-	conf := LoadConfiguration("/Users/yana/projects/mailru_go_project/config/config.json")
+	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
+	if err!= nil{
+		log.Fatal(err)
+	}
+	conf := configuration.LoadConfiguration(conf_path)
 	start := time.Now()
 	ch := make(chan int)
 
 	Router()
-	u := project_database.User{ "login", "passw"}
-	InitDatabaseConnection(conf, u)
+	InitDatabaseConnection(conf)
 
 
 	for range ch {
