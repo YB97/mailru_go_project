@@ -37,16 +37,18 @@ func Router(hand handlers.Handler) {
 	router.POST("/registration/", hand.CreateNewUser)
 	// Recognition handlers
 	router.GET("/recognition/", handlers.GetRecognitionPage)
-	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
+	router.POST("recognition/load_file", handlers.GetImage)
+	router.ServeFiles("/static/*filepath", http.Dir("./mailru_go_project/src/static"))
 	http.ListenAndServe(":8080", router)
 }
 
 
 
-func MakeGoogleVisionRequest(config configuration.Config) {
+func MakeGoogleVisionRequest(config configuration.Config, filename string) {
 
 
-	data, err := ioutil.ReadFile("./images")
+	//data, err := ioutil.ReadFile("./images")
+	data, err := ioutil.ReadFile(filename)
 	enc := base64.StdEncoding.EncodeToString(data)
 	img := &vision.Image{Content: enc}
 
@@ -118,7 +120,7 @@ func main() {
 	Router(InitDatabaseConnection(conf))
 
 	for range ch {
-		go MakeGoogleVisionRequest(conf)
+		go MakeGoogleVisionRequest(conf, filename)
 	}
 
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())

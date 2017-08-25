@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	login_template = template.Must(template.ParseFiles(path.Join("./src/template", "auth.html")))
+	login_template = template.Must(template.ParseFiles(path.Join("./mailru_go_project/src/template", "auth.html")))
 )
 
 var (
@@ -106,5 +106,10 @@ func (h Handler) CreateNewUser(w http.ResponseWriter, r *http.Request, ps httpro
 
 
 	}
+
+}
+
+
+func (h Handler) GetImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params){
 
 }

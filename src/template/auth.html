@@ -12,16 +12,16 @@
 
 <body>
 <div class="wrapper">
-    <div class="form-signin">
+    <form class="form-signin">
         <h2 class="form-signin-heading">Пожалуйста, авторизируйтесь</h2>
-        <input id="login" type="text" class="form-control" placeholder="Email Address" autofocus="" />
-        <input id="password" type="password" class="form-control" placeholder="Password"/>
+        <input id="login" type="text" class="form-control" placeholder="Email Address" required="" autofocus=""/>
+        <input id="password" type="password" class="form-control" placeholder="Password" required/>
         <label class="checkbox">
             <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe"> Запомнить
         </label>
         <button id="login_btn" class="btn btn-lg btn-primary btn-block">Войти</button>
         <button id="registration_btn" class="btn btn-lg btn-primary btn-block btn-success">Регистрация</button>
-    </div>
+    </form>
 </div>
 
 <script type="text/javascript" src="/static/common/js/jquery.min.js"></script>
