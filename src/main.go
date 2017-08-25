@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"./database"
-	"./recognition"
 
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
@@ -17,6 +16,7 @@ import (
 	"./handlers"
 	"./configuration"
 	"github.com/jinzhu/gorm"
+	"path/filepath"
 )
 
 
@@ -28,7 +28,7 @@ func Router() {
 	router.POST("/login/", handlers.Login)
 	router.GET("/recognition/", handlers.GetRecognitionMainPage)
 	router.GET("/", handlers.Index)
-	router.GET("/register/", handlers.Register)
+	router.GET("/registration/", handlers.RegPage)
 	router.ServeFiles("/static/*filepath", http.Dir("./src/static"))
 	http.ListenAndServe(":8080", router)
 }
@@ -95,7 +95,11 @@ func InitDatabaseConnection(conf configuration.Config)  {
 }
 
 func main() {
-	conf := configuration.LoadConfiguration("./Configuration/config.json")
+	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
+	if err!= nil{
+		log.Fatal(err)
+	}
+	conf := configuration.LoadConfiguration(conf_path)
 	start := time.Now()
 	ch := make(chan int)
 
