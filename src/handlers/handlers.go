@@ -48,12 +48,13 @@ func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 }
 
 func (h Handler) GetRecognitionMainPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	cookie, err := r.Cookie("logged in")
+	fmt.Println(r.Cookie("logged in"))
+	cookie, _ := r.Cookie("logged in")
 	user := database.User{UUID: cookie.Value}
-	if err != nil {
-		log.Fatal(err)
-	}
 	h.DB_instance.First(&user)
+	fmt.Println("!!!!!!")
+	fmt.Println(user)
+	fmt.Println(cookie.Value)
 	if user.ID != 0 {
 		if err := recognition_template.ExecuteTemplate(w, "recognition", nil); err != nil {
 			log.Println(err.Error())
@@ -73,35 +74,39 @@ func RegPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
-	jsonUserData := queryVal.Get("userData")
+	jsonUserData := queryVal.Get("UserData")
 	var ud userData
 	err := json.Unmarshal([]byte(jsonUserData), &ud)
 	fmt.Println(ud)
 	username := ud.Login
 	password := ud.Password
+	fmt.Println(username, password)
 	user_uuid := uuid.NewV4().String()
 
 	if err != nil {
-		log.Fatal(err)
-	}
-	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Wrong json"))
-		panic(err)
+		fmt.Println("error")
 	} else {
 		user := database.User{LOGIN: username}
 		h.DB_instance.Where("login = ?", username).First(&user)
+		fmt.Println("123")
 		if bcrypt.CompareHashAndPassword([]byte(user.PASSWORD), []byte(password)) == nil {
+			fmt.Println("hash is ok")
 			h.DB_instance.First(&user)
 			user.UUID = user_uuid
 			h.DB_instance.Save(&user)
+
 			cookie := &http.Cookie{Name: "logged in", Value: user_uuid, MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour)}
-			w.WriteHeader(http.StatusOK)
 			http.SetCookie(w, cookie)
+			w.WriteHeader(http.StatusOK)
+
+			fmt.Println("cookie value is: ", string(cookie.Value))
 		} else {
 			cookie := &http.Cookie{Value: "False", MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour)}
-			w.WriteHeader(http.StatusForbidden)
 			http.SetCookie(w, cookie)
+			w.WriteHeader(http.StatusForbidden)
+			fmt.Println("response is: ", w.Header())
 		}
 	}
 
@@ -109,7 +114,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 
 func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	queryVal := r.URL.Query()
-	jsonUserData := queryVal.Get("userData")
+	jsonUserData := queryVal.Get("UserData")
 	var ud userData
 	err := json.Unmarshal([]byte(jsonUserData), &ud)
 	fmt.Println(ud)
@@ -124,7 +129,8 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 	if (username == "") || (password == "") {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Wrong json"))
-		fmt.Printf("Empty username or password field")
+		fmt.Println(r.RequestURI)
+		fmt.Println("Empty username or password field")
 	} else {
 
 		user := database.User{}
