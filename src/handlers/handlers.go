@@ -66,19 +66,28 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	err := json.Unmarshal([]byte(jsonUserData), &ud)
 	username := ud.Login
 	password := ud.Password
-	user_uuid := uuid.NewV4()
+	user_uuid := uuid.NewV4().String()
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 8)
+
+	if err!= nil{
+		log.Fatal(err)
+	}
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Wrong json"))
 		panic(err)
 	} else {
-		user := database.User{LOGIN: username, PASSWORD: password}
-		h.DB_instance.First(&user)
-		user.UUID = user_uuid.String()
-		h.DB_instance.Save(&user)
-		cookie := &http.Cookie{Name: "test", Value: user_uuid.String(), MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour) }
-		http.SetCookie(w, cookie)
-		w.WriteHeader(http.StatusOK)
+		user := database.User{}
+		h.DB_instance.Where("login = ? AND password = ?", username, string(hash))
+
+		if user.ID != 0 {
+			h.DB_instance.First(&user)
+			user.UUID = user_uuid
+			h.DB_instance.Save(&user)
+			cookie := &http.Cookie{Value: user_uuid, MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour)}
+			http.SetCookie(w, cookie)
+			w.WriteHeader(http.StatusOK)
+		}
 	}
 
 }
@@ -102,19 +111,15 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 		fmt.Printf("Empty username or password field")
 	} else {
 
-
 		user := database.User{}
-		h.DB_instance.Where("login = ? AND password = ?", username, hash)
+		h.DB_instance.Where("login = ? AND password = ?", username, string(hash))
 		if user.ID == 0{
 			NewUser := database.User{LOGIN:username, PASSWORD: string(hash)}
-			h.DB_instance.NewRecord(NewUser)
+			h.DB_instance.NewRecord(&NewUser)
 			h.DB_instance.Create(&NewUser)
 			w.WriteHeader(http.StatusOK)
 		} else{
 			w.WriteHeader(http.StatusBadRequest)
 		}
-
-
 	}
-
 }

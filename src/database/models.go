@@ -15,8 +15,8 @@ type Image struct {
 
 type Queue struct {
 	ID      int     `gorm:"primary_key"`
-	User User `gorm:"ForeignKey:UserID"`
-	Image Image `gorm:"ForeignKey:ImageID"`
-	UserID uint
+	User    User    `gorm:"ForeignKey:UserID"`
+	Image   Image   `gorm:"ForeignKey:ImageID"`
+	UserID  uint
 	ImageID uint
 }
