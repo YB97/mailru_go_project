@@ -96,22 +96,25 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 		log.Fatal(err)
 	}
 
-	if (username != "") || (password != ""){
-		w.WriteHeader(http.StatusInternalServerError)
+	if (username == "") || (password == ""){
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Wrong json"))
 		fmt.Printf("Empty username or password field")
 	} else {
 
 
-		//user := database.User{LOGIN:username, PASSWORD: string(hash)}
-		//if user != ""{
-		//
-		//}
+		user := database.User{}
+		h.DB_instance.Where("login = ? AND password = ?", username, hash)
+		if user.ID == 0{
+			NewUser := database.User{LOGIN:username, PASSWORD: string(hash)}
+			h.DB_instance.NewRecord(NewUser)
+			h.DB_instance.Create(&NewUser)
+			w.WriteHeader(http.StatusOK)
+		} else{
+			w.WriteHeader(http.StatusBadRequest)
+		}
 
-		NewUser := database.User{LOGIN:username, PASSWORD: string(hash)}
-		h.DB_instance.NewRecord(NewUser)
-		h.DB_instance.Create(&NewUser)
-		w.WriteHeader(http.StatusOK)
+
 	}
 
 }
