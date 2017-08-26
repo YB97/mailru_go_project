@@ -88,7 +88,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		panic(err)
 	} else {
 		user := database.User{}
-		h.DB_instance.Where("login = ? AND password = ?", username, string(hash))
+		h.DB_instance.Where("login = ? AND password = ?", username, string(hash)).First(&user)
 
 		if user.ID != 0 {
 			h.DB_instance.First(&user)
@@ -126,7 +126,8 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 	} else {
 
 		user := database.User{}
-		h.DB_instance.Where("login = ? AND password = ?", username, string(hash))
+		h.DB_instance.Where("login = ? AND password = ?", username, string(hash)).First(&user)
+		fmt.Println(user.ID)
 		if user.ID == 0{
 			NewUser := database.User{LOGIN:username, PASSWORD: string(hash)}
 			h.DB_instance.NewRecord(&NewUser)
