@@ -10,7 +10,7 @@ type User struct {
 }
 
 type Image struct {
-	//ID       int    `gorm:"primary_key; AUTO_INCREMENT"`
+	ID       int    `gorm:"primary_key; AUTO_INCREMENT"`
 	FILENAME string `gorm:"size:255"`
 //	User     User   `gorm:"ForeignKey:UserID"`
 //	UserID   uint

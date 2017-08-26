@@ -8,16 +8,10 @@
 
 <body>
 
-<!--<h2 class="form-signin-heading">Let's get it started</h2>-->
-<!--<div class="fileupload fileupload-new" data-provides="fileupload">-->
-    <!--<span class="btn btn-primary btn-file"><span class="fileupload-new">Select file</span>-->
-    <!--<span class="fileupload-exists">Change</span>         <input id="file_container" name="file" type="file" /></span>-->
-    <!--<span class="fileupload-preview"></span>-->
-    <!--<a href="#" class="close fileupload-exists" data-dismiss="fileupload" style="float: none">×</a>-->
-<!--</div>-->
-<form enctype="multipart/form-data" action="load_file/" method="post">
+
+<form enctype="multipart/form-data" action="load_file/" method="post" class="form-signin">
     <input type="file" name="file" />
-    <input id="fileupload" type="submit" value="upload" />
+    <button id="fileuload"  type = "submit" class="btn btn-lg btn-primary btn-block">Upload</button>
 </form>
 
 <script type="text/javascript" src="/static/common/js/jquery.min.js"></script>

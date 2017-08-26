@@ -134,7 +134,7 @@ func (h Handler) GetImage(w http.ResponseWriter, r *http.Request, ps httprouter.
 			fmt.Println(err)
 		}
 	//image := database.Image{}
-	NewImage:=database.Image{ handler.Filename}
+	NewImage:=database.Image{ FILENAME:handler.Filename}
 	h.DB_instance.NewRecord(NewImage)
 	h.DB_instance.Create(&NewImage)
 }
