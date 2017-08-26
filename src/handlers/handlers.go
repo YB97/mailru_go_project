@@ -91,8 +91,6 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	} else {
 		user := database.User{LOGIN: username}
 		h.DB_instance.Where("login = ?", username).First(&user)
-		fmt.Println(user)
-		fmt.Println(bcrypt.CompareHashAndPassword([]byte(user.PASSWORD), []byte(password)))
 		if bcrypt.CompareHashAndPassword([]byte(user.PASSWORD), []byte(password)) == nil {
 			h.DB_instance.First(&user)
 			user.UUID = user_uuid
@@ -130,8 +128,7 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 	} else {
 
 		user := database.User{}
-		h.DB_instance.Where("login = ? AND password = ?", username, string(hash)).First(&user)
-		fmt.Println(user.ID)
+		h.DB_instance.Where("login = ?", username).First(&user)
 		if user.ID == 0 {
 			NewUser := database.User{LOGIN: username, PASSWORD: string(hash)}
 			h.DB_instance.NewRecord(&NewUser)
