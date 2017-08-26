@@ -85,8 +85,12 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 			user.UUID = user_uuid
 			h.DB_instance.Save(&user)
 			cookie := &http.Cookie{Value: user_uuid, MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour)}
-			http.SetCookie(w, cookie)
 			w.WriteHeader(http.StatusOK)
+			http.SetCookie(w, cookie)
+		} else{
+			cookie := &http.Cookie{Value: "False", MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour)}
+			w.WriteHeader(http.StatusForbidden)
+			http.SetCookie(w, cookie)
 		}
 	}
 
