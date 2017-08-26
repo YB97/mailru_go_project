@@ -134,7 +134,17 @@ func (h Handler) GetImage(w http.ResponseWriter, r *http.Request, ps httprouter.
 			fmt.Println(err)
 		}
 	//image := database.Image{}
+
 	NewImage:=database.Image{ FILENAME:handler.Filename}
 	h.DB_instance.NewRecord(NewImage)
 	h.DB_instance.Create(&NewImage)
+
+	//cookie, _ := r.Cookie("logged in")
+	//
+	//
+	//h.DB_instance.Where("uuid = ?", cookie.Value)
+	user:=database.User{}
+	NewQueue:=database.Queue{User:user, Image: NewImage}
+	h.DB_instance.NewRecord(NewQueue)
+	h.DB_instance.Create(&NewQueue)
 }
