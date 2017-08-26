@@ -28,7 +28,7 @@ func Router(hand handlers.Handler) {
 
 	router := httprouter.New()
 
-	router.GET("/login/", hand.Login)
+	router.GET("/login/", handlers.Index)
 	router.GET("/recognition/", hand.GetRecognitionMainPage)
 	router.GET("/", handlers.Index)
 	router.GET("/registration/", handlers.RegPage)
@@ -79,8 +79,6 @@ func InitDatabaseConnection(conf configuration.Config) handlers.Handler {
 		conf.Database.Password + "@/" + conf.Database.Name + ""
 	db, err := gorm.Open("mysql", database_connection_arg)
 	main_handler := handlers.Handler{db}
-
-	defer db.Close()
 
 	if err != nil {
 		log.Fatal(err)

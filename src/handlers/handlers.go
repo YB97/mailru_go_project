@@ -74,6 +74,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 	jsonUserData := queryVal.Get("userData")
 	var ud userData
 	err := json.Unmarshal([]byte(jsonUserData), &ud)
+	fmt.Println(ud)
 	username := ud.Login
 	password := ud.Password
 	user_uuid := uuid.NewV4().String()
@@ -88,7 +89,9 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 		panic(err)
 	} else {
 		user := database.User{}
+		fmt.Println(string(hash))
 		h.DB_instance.Where("login = ? AND password = ?", username, string(hash)).First(&user)
+		fmt.Println(user)
 
 		if user.ID != 0 {
 			h.DB_instance.First(&user)
@@ -111,6 +114,7 @@ func (h Handler) Register(w http.ResponseWriter, r *http.Request, ps httprouter.
 	jsonUserData := queryVal.Get("userData")
 	var ud userData
 	err := json.Unmarshal([]byte(jsonUserData), &ud)
+	fmt.Println(ud)
 	username := ud.Login
 	password := ud.Password
 

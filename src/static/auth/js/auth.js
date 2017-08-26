@@ -13,7 +13,7 @@ function showModal(stat) {
 $('#login_btn').click(function () {
     let login = $('#login').val();
     let password = $('#password').val();
-    $.post("/log/?userData="+JSON.stringify({"LOGIN": login, "PASSWORD": password}), function (response) {
+    $.post("/log/?userData="+JSON.stringify({"login": login, "password": password}), function (response, status) {
 
         if (status == "success"){
             showModal(true);
