@@ -7,31 +7,29 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
 	"./database"
 
+	"time"
+
+	"./configuration"
+	"./handlers"
+	"github.com/jinzhu/gorm"
+	"github.com/julienschmidt/httprouter"
 	"google.golang.org/api/googleapi/transport"
 	"google.golang.org/api/vision/v1"
-	"time"
-	"github.com/julienschmidt/httprouter"
-	"./handlers"
-	"./configuration"
-	"github.com/jinzhu/gorm"
 
 	"path/filepath"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-
 )
-
-
-
 
 func Router(hand handlers.Handler) {
 
 	router := httprouter.New()
 
 	router.GET("/login/", hand.Login)
-	router.GET("/recognition/", handlers.GetRecognitionMainPage)
+	router.GET("/recognition/", hand.GetRecognitionMainPage)
 	router.GET("/", handlers.Index)
 	router.GET("/registration/", handlers.RegPage)
 	router.POST("/reg/", hand.Register)
@@ -40,10 +38,7 @@ func Router(hand handlers.Handler) {
 	http.ListenAndServe(":8080", router)
 }
 
-
-
 func MakeGoogleVisionRequest(config configuration.Config) {
-
 
 	data, err := ioutil.ReadFile("./images")
 	enc := base64.StdEncoding.EncodeToString(data)
@@ -64,7 +59,7 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 	}
 
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: config.Key },
+		Transport: &transport.APIKey{Key: config.Key},
 	}
 	svc, err := vision.New(client)
 	if err != nil {
@@ -79,8 +74,7 @@ func MakeGoogleVisionRequest(config configuration.Config) {
 	fmt.Println(string(body))
 }
 
-
-func InitDatabaseConnection(conf configuration.Config) handlers.Handler  {
+func InitDatabaseConnection(conf configuration.Config) handlers.Handler {
 	database_connection_arg := conf.Database.User + ":" +
 		conf.Database.Password + "@/" + conf.Database.Name + ""
 	db, err := gorm.Open("mysql", database_connection_arg)
@@ -108,7 +102,7 @@ func InitDatabaseConnection(conf configuration.Config) handlers.Handler  {
 
 func main() {
 	conf_path, err := filepath.Abs(filepath.Join("./src/configuration/config.json"))
-	if err!= nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 	conf := configuration.LoadConfiguration(conf_path)
@@ -122,6 +116,5 @@ func main() {
 	}
 
 	fmt.Printf("%.2fs elapsed\n", time.Since(start).Seconds())
-
 
 }

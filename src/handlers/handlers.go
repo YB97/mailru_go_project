@@ -44,10 +44,20 @@ func Index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}
 }
 
-func GetRecognitionMainPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {
-	if err := recognition_template.ExecuteTemplate(w, "recognition", nil); err != nil {
-		log.Println(err.Error())
-		http.Error(w, http.StatusText(500), 500)
+func (h Handler) GetRecognitionMainPage(w http.ResponseWriter, r *http.Request, ps httprouter.Params)  {
+	cookie, err := r.Cookie("logged in")
+	user := database.User{UUID:cookie.Value}
+	if err!= nil{
+		log.Fatal(err)
+	}
+	h.DB_instance.First(&user)
+	if user.ID !=0 {
+		if err := recognition_template.ExecuteTemplate(w, "recognition", nil); err != nil {
+			log.Println(err.Error())
+			http.Error(w, http.StatusText(500), 500)
+		}
+	} else {
+		w.WriteHeader(http.StatusForbidden)
 	}
 }
 
@@ -84,7 +94,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request, ps httprouter.Par
 			h.DB_instance.First(&user)
 			user.UUID = user_uuid
 			h.DB_instance.Save(&user)
-			cookie := &http.Cookie{Value: user_uuid, MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour)}
+			cookie := &http.Cookie{Name: "logged in", Value: user_uuid, MaxAge: -1, Expires: time.Now().Add(-100 * time.Hour)}
 			w.WriteHeader(http.StatusOK)
 			http.SetCookie(w, cookie)
 		} else{
